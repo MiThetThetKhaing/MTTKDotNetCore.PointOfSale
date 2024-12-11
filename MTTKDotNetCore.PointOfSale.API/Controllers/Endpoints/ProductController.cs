@@ -10,8 +10,8 @@ namespace MTTKDotNetCore.PointOfSale.API.Controllers.Endpoints
     public class ProductController : BaseController
     {
         private readonly AppDbContext _db;
-        private readonly ProductService _productService;
-        public ProductController(AppDbContext db, ProductService productService)
+        private readonly IProductService _productService;
+        public ProductController(AppDbContext db, IProductService productService)
         {
             _db = db;
             _productService = productService;
