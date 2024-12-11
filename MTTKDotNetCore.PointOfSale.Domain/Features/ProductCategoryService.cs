@@ -58,5 +58,123 @@ namespace MTTKDotNetCore.PointOfSale.Domain.Features
                 return Result<ProductCategoryResponseModel>.SystemError(ex.Message);
             }
         }
+
+        public async Task<Result<ProductCategoryResponseModel>> GetAllCategories()
+        {
+            Result<ProductCategoryResponseModel> response = new Result<ProductCategoryResponseModel>();
+
+            var lst = await _db.TblProductCategoryPos.AsNoTracking().Where(c => c.DeleteFlag == false).ToListAsync();
+
+            ProductCategoryResponseModel model = new ProductCategoryResponseModel { 
+                TblProductCategoryPosList = lst
+            };
+            if(lst.Count > 0)
+            {
+                response = Result<ProductCategoryResponseModel>.Success(model, "There is no Category. Try creating one, frist!");
+                goto Result;
+            }
+
+            response = Result<ProductCategoryResponseModel>.Success(model, "Here are the categories: ");
+
+        Result:
+            return response;
+        }
+
+        public async Task<Result<ProductCategoryResponseModel>> GetCategoryByCode(string categoryCode)
+        {
+            Result<ProductCategoryResponseModel> response = new Result<ProductCategoryResponseModel>();
+
+            var category = await _db.TblProductCategoryPos.AsNoTracking().Where(c => c.DeleteFlag == false && c.ProductCategoryCode == categoryCode ).FirstOrDefaultAsync();
+
+            
+            if (category is null)
+            {
+                response = Result<ProductCategoryResponseModel>.NotFound($"Can't find the Category with code {categoryCode}.");
+                goto Result;
+            }
+
+            ProductCategoryResponseModel model = new ProductCategoryResponseModel
+            {
+                TblProductCategoryPos = category
+            };
+            response = Result<ProductCategoryResponseModel>.Success(model, "Here is the category: ");
+
+        Result:
+            return response;
+        }
+
+        public async Task<Result<ProductCategoryResponseModel>> ChangeCategoryName(string categoryCode, string newName)
+        {
+            Result<ProductCategoryResponseModel> response = new Result<ProductCategoryResponseModel>();
+
+            if (String.IsNullOrEmpty(newName) || newName.Length < 6)
+            {
+                response = Result<ProductCategoryResponseModel>.ValidationError("New Name can't lower than 6 characters!");
+                goto Result;
+            }
+
+            var category = await _db.TblProductCategoryPos.AsNoTracking().Where(c => c.DeleteFlag == false && c.ProductCategoryCode == categoryCode).FirstOrDefaultAsync();
+
+
+            if (category is null)
+            {
+                response = Result<ProductCategoryResponseModel>.NotFound($"Can't find the Category with code {categoryCode}.");
+                goto Result;
+            }
+
+            category.ProductCategoryName = newName;
+
+            _db.Entry(category).State = EntityState.Modified;
+            int result = await _db.SaveChangesAsync();
+
+            if(result < 1)
+            {
+                response = Result<ProductCategoryResponseModel>.SystemError("Category Update Failed!");
+                goto Result;
+            }
+
+            ProductCategoryResponseModel model = new ProductCategoryResponseModel
+            {
+                TblProductCategoryPos = category
+            };
+            response = Result<ProductCategoryResponseModel>.Success(model, "Here is the updated category: ");
+
+        Result:
+            return response;
+        }
+
+        public async Task<Result<ProductCategoryResponseModel>> DeleteCategory(string categoryCode)
+        {
+            Result<ProductCategoryResponseModel> response = new Result<ProductCategoryResponseModel>();
+
+            var category = await _db.TblProductCategoryPos.AsNoTracking().Where(c => c.DeleteFlag == false && c.ProductCategoryCode == categoryCode).FirstOrDefaultAsync();
+
+
+            if (category is null)
+            {
+                response = Result<ProductCategoryResponseModel>.NotFound($"Can't find the Category with code {categoryCode}.");
+                goto Result;
+            }
+
+            category.DeleteFlag = true;
+
+            _db.Entry(category).State = EntityState.Modified;
+            int result = await _db.SaveChangesAsync();
+
+            if (result < 1)
+            {
+                response = Result<ProductCategoryResponseModel>.SystemError("Category Delete Failed!");
+                goto Result;
+            }
+
+            ProductCategoryResponseModel model = new ProductCategoryResponseModel
+            {
+                TblProductCategoryPos = category
+            };
+            response = Result<ProductCategoryResponseModel>.Success( null,"Category Deleted!");
+
+        Result:
+            return response;
+        }
     }
 }

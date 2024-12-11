@@ -16,7 +16,7 @@ public class Result<T>
     public T Data { get; set; }
     public string Message { get; set; }
 
-    public static Result<T> Success(T data, string message)
+    public static Result<T> Success(T? data, string message)
     {
         return new Result<T>
         {
@@ -48,6 +48,17 @@ public class Result<T>
             Message = message
         };
     }
+    
+    public static Result<T> NotFound(string message, T? data = default)
+    {
+        return new Result<T>
+        {
+            IsSuccess = false,
+            Data = data,
+            Type = EnumRespType.NotFound,
+            Message = message
+        };
+    }
 }
 
 public enum EnumRespType
@@ -55,7 +66,8 @@ public enum EnumRespType
     None,
     Success,
     ValidationError,
-    SystemError
+    SystemError,
+    NotFound
 }
 
 
