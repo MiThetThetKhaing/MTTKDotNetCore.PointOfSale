@@ -31,16 +31,8 @@ namespace MTTKDotNetCore.PointOfSale.Domain.Features
                     return Result<SaleResponseModel>.ValidationError("You need to put the Voucher No.");
                 }
 
-                if (Voucher == null)
-                {
-                    await _db.TblSalePos.AddAsync(sale);
-                    await _db.SaveChangesAsync();
-                }
-                else
-                {
-                    _db.Update(sale);
-                    await _db.SaveChangesAsync();
-                }
+                await _db.TblSalePos.AddAsync(sale);
+                await _db.SaveChangesAsync();
 
                 var result = new SaleResponseModel
                 {
@@ -49,6 +41,31 @@ namespace MTTKDotNetCore.PointOfSale.Domain.Features
 
                 return Result<SaleResponseModel>.Success(result, "Successfully completed.");
 
+            }
+            catch (Exception ex)
+            {
+                return Result<SaleResponseModel>.SystemError(ex.Message);
+            }
+        }
+
+        public async Task<Result<SaleResponseModel>> GetSale(string voucherNo)
+        {
+            try
+            {
+                var VoucherNo = await _db.TblSalePos.AsNoTracking().FirstOrDefaultAsync(x => x.VoucherNo == voucherNo);
+                var saleDetail = await _saleDetailService.GetSaleDetails(voucherNo);
+
+                if (string.IsNullOrEmpty(VoucherNo.VoucherNo))
+                {
+                    return Result<SaleResponseModel>.ValidationError("Voucher does't exist.");
+                }
+
+                var result = new SaleResponseModel
+                {
+                    TblSalePos = VoucherNo,
+                };
+
+                return Result<SaleResponseModel>.Success(result, "Here is you sale voucher!");
             }
             catch (Exception ex)
             {

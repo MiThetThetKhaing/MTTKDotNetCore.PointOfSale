@@ -18,37 +18,56 @@ namespace MTTKDotNetCore.PointOfSale.Domain.Features
             _db = db;
         }
 
+        public async Task<Result<SaleResponseModel>> GetSaleDetails(string voucherNo)
+        {
+            try
+            {
+                var VoucherNo = await _db.TblSaleInvoiceDetailPos.AsNoTracking().FirstOrDefaultAsync(x => x.VoucherNo == voucherNo);
+
+                if (string.IsNullOrEmpty(VoucherNo.VoucherNo))
+                {
+                    return Result<SaleResponseModel>.ValidationError("Voucher doesn't exist.");
+                }
+
+                var result = new SaleResponseModel()
+                {
+                    TblSaleInvoiceDetailPos = VoucherNo
+                };
+
+                return Result<SaleResponseModel>.Success(result, "Here is your sale details.");
+            }
+            catch (Exception ex)
+            {
+                return Result<SaleResponseModel>.SystemError(ex.Message);
+            }
+        }
+
         public async Task<Result<SaleResponseModel>> CreateSaleInvoiceDetail(TblSaleInvoiceDetailPos saleInvoice)
         {
             try
             {
                 var VoucherNo = await _db.TblSalePos.AsNoTracking().FirstOrDefaultAsync(x => x.VoucherNo == saleInvoice.VoucherNo);
-                var Vouchers = await _db.TblSalePos.AsNoTracking().Where(x => x.VoucherNo == saleInvoice.VoucherNo).ToListAsync();
                 var ProductCode = await _db.TblProductPos.AsNoTracking().FirstOrDefaultAsync(x => x.ProductCode == saleInvoice.ProductCode);
+                var VoucherOfSaleDetail = await _db.TblSaleInvoiceDetailPos.AsNoTracking().FirstOrDefaultAsync(x => x.VoucherNo == saleInvoice.VoucherNo);
 
                 if (VoucherNo is null)
                 {
-                    return Result<SaleResponseModel>.ValidationError("Voucher No doesn't exist.");
+                    return Result<SaleResponseModel>.ValidationError("Voucher No doesn't exist in Sale.");
                 }
                 if (ProductCode is null)
                 {
                     return Result<SaleResponseModel>.ValidationError("Product Code doesn't exist. Please Create Product Code first!");
                 }
-                if (VoucherNo != null)
+                if (VoucherOfSaleDetail != null)
                 {
-                    // for all same voucher
-                    foreach (var voucher in Vouchers)
-                    {
-                        VoucherNo.TotalAmount += ProductCode.Price * saleInvoice.Quantity;
-                    }
-
-                    _db.TblSalePos.Update(VoucherNo);
+                    return Result<SaleResponseModel>.ValidationError("Voucher is already exist.");
                 }
 
-
-                //VoucherNo.TotalAmount = ProductCode.Price * saleInvoice.Quantity;
+                //VoucherNo.TotalAmount += ProductCode.Price * saleInvoice.Quantity;
+                VoucherNo.TotalAmount = ProductCode.Price * saleInvoice.Quantity;      // this will update total amount of sale
                 saleInvoice.Price = ProductCode.Price;
 
+                _db.TblSalePos.Update(VoucherNo);
                 await _db.TblSaleInvoiceDetailPos.AddAsync(saleInvoice);
                 await _db.SaveChangesAsync();
 
