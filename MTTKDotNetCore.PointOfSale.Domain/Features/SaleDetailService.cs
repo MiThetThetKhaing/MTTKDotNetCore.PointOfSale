@@ -65,7 +65,7 @@ namespace MTTKDotNetCore.PointOfSale.Domain.Features
 
                 //VoucherNo.TotalAmount += ProductCode.Price * saleInvoice.Quantity;
                 VoucherNo.TotalAmount = ProductCode.Price * saleInvoice.Quantity;      // this will update total amount of sale
-                saleInvoice.Price = ProductCode.Price;
+                saleInvoice.Price = ProductCode.Price;  // update price with product price
 
                 _db.TblSalePos.Update(VoucherNo);
                 await _db.TblSaleInvoiceDetailPos.AddAsync(saleInvoice);
