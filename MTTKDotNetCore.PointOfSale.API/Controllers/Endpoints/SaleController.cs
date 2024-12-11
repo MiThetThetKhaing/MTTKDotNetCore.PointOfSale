@@ -19,6 +19,15 @@ namespace MTTKDotNetCore.PointOfSale.API.Controllers.Endpoints
             _saleDetailService = saleDetailService;
         }
 
+        [HttpGet("get-sale-by-voucher")]
+        public async Task<IActionResult> GetSale(string voucherNo)
+        {
+            var SaleResult = await _saleService.GetSale(voucherNo);
+            var saleDetailResult = await _saleDetailService.GetSaleDetails(voucherNo);
+
+            return Execute(SaleResult);
+        }
+
         [HttpPost("sale")]
         public async Task<IActionResult> Sale(SaleRequest saleRequest)
         {
@@ -28,7 +37,7 @@ namespace MTTKDotNetCore.PointOfSale.API.Controllers.Endpoints
             var item = await _saleService.CreateSale(sale);
             var result = await _saleDetailService.CreateSaleInvoiceDetail(saleDetail);
 
-            return Execute(item);
+            return result.IsError ? Execute(result) : Execute(item);
         }
     }
 }
