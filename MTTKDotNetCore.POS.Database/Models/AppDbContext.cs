@@ -49,9 +49,9 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<TblSaleInvoiceDetailPos>(entity =>
         {
-            entity
-                .HasNoKey()
-                .ToTable("Tbl_SaleInvoiceDetail_POS");
+            entity.HasKey(e => e.SaleDetailId);
+                
+            entity.ToTable("Tbl_SaleInvoiceDetail_POS");
 
             entity.Property(e => e.Price).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.ProductCode).HasMaxLength(50);

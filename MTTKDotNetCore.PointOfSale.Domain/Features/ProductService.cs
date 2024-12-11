@@ -53,4 +53,84 @@ public class ProductService : IProductService
             return Result<ProductResponseModel>.SystemError(ex.Message);
         }
     }
+
+    public async Task<Result<ProductResponseModel>> GetProduct(int productId)
+    {
+        Result<ProductResponseModel> model = new Result<ProductResponseModel>();
+
+        var product = await _db.TblProductPos.FirstOrDefaultAsync(x => x.ProductId == productId && !x.DeleteFlag);
+
+        if (product is null)
+        {
+            model = Result<ProductResponseModel>.ValidationError("Product not found or has been deleted.");
+            goto Result;
+        }
+
+        var Response = new ProductResponseModel
+        {
+            TblProductPos = product
+        };
+
+        model = Result<ProductResponseModel>.Success(Response, "Success.");
+
+    Result:
+        return model;
+    }
+
+
+    public async Task<Result<ProductResponseModel>> UpdateProduct(int productId, TblProductPos updatedProduct)
+    {
+        Result<ProductResponseModel> model = new Result<ProductResponseModel>();
+
+        var product = await _db.TblProductPos.AsNoTracking().FirstOrDefaultAsync(x => x.ProductId == productId);
+        
+        if (product is null)
+        {
+            model = Result<ProductResponseModel>.ValidationError("Product not found.");
+            goto Result;
+        }
+
+        product.ProductName = updatedProduct.ProductName;
+        product.Price = updatedProduct.Price;
+
+        _db.TblProductPos.Update(product); 
+        await _db.SaveChangesAsync();
+
+        var Response = new ProductResponseModel
+        {
+            TblProductPos = product
+        };
+        model = Result<ProductResponseModel>.Success(Response, "Product updated successfully.");
+    Result:
+        return model;
+    }
+
+    public async Task<Result<ProductResponseModel>> DeleteProduct(int productId)
+    {
+        Result<ProductResponseModel> model = new Result<ProductResponseModel>();
+
+        var product = await _db.TblProductPos.FirstOrDefaultAsync(x => x.ProductId == productId);
+
+        if (product is null)
+        {
+            model = Result<ProductResponseModel>.ValidationError("Product not found.");
+            goto Result;
+        }
+
+        product.DeleteFlag = true;
+
+        _db.TblProductPos.Update(product);
+        await _db.SaveChangesAsync();
+
+        var deletedProductResponse = new ProductResponseModel
+        {
+            TblProductPos = product
+        };
+
+        model = Result<ProductResponseModel>.Success(deletedProductResponse, "Product marked as deleted successfully.");
+
+    Result:
+        return model;
+    }
+
 }
