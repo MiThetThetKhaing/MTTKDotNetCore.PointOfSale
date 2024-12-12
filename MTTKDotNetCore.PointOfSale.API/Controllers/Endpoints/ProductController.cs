@@ -28,21 +28,21 @@ namespace MTTKDotNetCore.PointOfSale.API.Controllers.Endpoints
         public async Task<IActionResult> GetProduct(int id)
         {
             var result = await _productService.GetProduct(id);
-            return Ok(result);
+            return Execute(result);
         }
 
         [HttpPatch("UpdateProduct/{id}")]
         public async Task<IActionResult> UpdateProduct(int id, TblProductPos updatedProduct)
         {
             var result = await _productService.UpdateProduct(id, updatedProduct);
-            return Ok(result);
+            return Execute(result);
         }
 
         [HttpDelete("Delete")] 
         public async Task<IActionResult> DeleteProduct(int id)
         {
             var result = await _productService.DeleteProduct(id);
-            return Ok(result);
+            return Execute(result);
         }
     }
 }
