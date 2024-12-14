@@ -43,7 +43,7 @@ namespace MTTKDotNetCore.PointOfSale.Domain.Features
 
                 if (product is null)
                 {
-                    model = Result<SaleResponseModel>.ValidationError($"Product does not exist or is deleted.");
+                    model = Result<SaleResponseModel>.ValidationError("Product does not exist or is deleted.");
                     goto Result;
                 }
 
@@ -90,14 +90,14 @@ namespace MTTKDotNetCore.PointOfSale.Domain.Features
         {
             Result<SaleResponseModel> model = new Result<SaleResponseModel>();
 
-            var sale = await _db.TblSalePos.AsNoTracking().FirstOrDefaultAsync(s => s.VoucherNo == voucherNo);
+            var sale = await _db.TblSalePos.AsNoTracking().FirstOrDefaultAsync(x => x.VoucherNo == voucherNo);
             if (sale is null)
             {
                 model = Result<SaleResponseModel>.ValidationError("Sale not found.");
                 goto Result;
             }
 
-            var saleDetails = await _db.TblSaleInvoiceDetailPos.AsNoTracking().Where(d => d.VoucherNo == voucherNo).ToListAsync();
+            var saleDetails = await _db.TblSaleInvoiceDetailPos.AsNoTracking().Where(x => x.VoucherNo == voucherNo).ToListAsync();
 
             var response = new SaleResponseModel
             {
