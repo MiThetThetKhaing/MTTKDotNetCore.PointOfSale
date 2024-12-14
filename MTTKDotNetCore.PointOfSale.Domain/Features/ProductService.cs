@@ -54,11 +54,11 @@ public class ProductService : IProductService
         }
     }
 
-    public async Task<Result<ProductResponseModel>> GetProduct(int productId)
+    public async Task<Result<ProductResponseModel>> GetProduct(string productCode)
     {
         Result<ProductResponseModel> model = new Result<ProductResponseModel>();
 
-        var product = await _db.TblProductPos.FirstOrDefaultAsync(x => x.ProductId == productId && !x.DeleteFlag);
+        var product = await _db.TblProductPos.FirstOrDefaultAsync(x => x.ProductCode == productCode && !x.DeleteFlag);
 
         if (product is null)
         {
