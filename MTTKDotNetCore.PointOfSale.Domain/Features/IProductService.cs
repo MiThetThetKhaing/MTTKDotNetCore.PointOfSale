@@ -7,7 +7,7 @@ namespace MTTKDotNetCore.PointOfSale.Domain.Features
     {
         Task<Result<ProductResponseModel>> CreateProduct(TblProductPos product);
         Task<Result<ProductResponseModel>> GetProduct(string productCode);
-        Task<Result<ProductResponseModel>> UpdateProduct(int productId, TblProductPos updatedProduct); 
-        Task<Result<ProductResponseModel>> DeleteProduct(int productId);
+        Task<Result<ProductResponseModel>> UpdateProduct(string productCode, TblProductPos updatedProduct); 
+        Task<Result<ProductResponseModel>> DeleteProduct(string productCode);
     }
 }

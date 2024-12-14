@@ -78,11 +78,11 @@ public class ProductService : IProductService
     }
 
 
-    public async Task<Result<ProductResponseModel>> UpdateProduct(int productId, TblProductPos updatedProduct)
+    public async Task<Result<ProductResponseModel>> UpdateProduct(string productCode, TblProductPos updatedProduct)
     {
         Result<ProductResponseModel> model = new Result<ProductResponseModel>();
 
-        var product = await _db.TblProductPos.AsNoTracking().FirstOrDefaultAsync(x => x.ProductId == productId);
+        var product = await _db.TblProductPos.AsNoTracking().FirstOrDefaultAsync(x => x.ProductCode == productCode);
         
         if (product is null)
         {
@@ -105,11 +105,11 @@ public class ProductService : IProductService
         return model;
     }
 
-    public async Task<Result<ProductResponseModel>> DeleteProduct(int productId)
+    public async Task<Result<ProductResponseModel>> DeleteProduct(string productCode)
     {
         Result<ProductResponseModel> model = new Result<ProductResponseModel>();
 
-        var product = await _db.TblProductPos.FirstOrDefaultAsync(x => x.ProductId == productId);
+        var product = await _db.TblProductPos.FirstOrDefaultAsync(x => x.ProductCode == productCode);
 
         if (product is null)
         {
