@@ -107,7 +107,7 @@ namespace MTTKDotNetCore.PointOfSale.Domain.Features
                 SaleItems = saleDetails.Select(detail => new SaleResponseModel.SaleItem
                 {
                     ProductCode = detail.ProductCode,
-                    ProductName = _db.TblProductPos.AsNoTracking().FirstOrDefault(x => x.ProductCode == detail.ProductCode)?.ProductName,
+                    ProductName = _db.TblProductPos.AsNoTracking().FirstOrDefault(x => x.ProductCode == detail.ProductCode)!.ProductName,
                     Quantity = detail.Quantity,
                     Price = detail.Price
                 }).ToList()
