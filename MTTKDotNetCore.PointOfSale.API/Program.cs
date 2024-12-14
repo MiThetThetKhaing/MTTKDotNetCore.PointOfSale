@@ -8,13 +8,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AppDbContext>(opt =>
 {
     //opt.UseSqlServer(builder.Configuration.GetConnectionString("DbConnection"));
-    opt.UseSqlServer(builder.Configuration.GetConnectionString("DbConnection1"));
+    opt.UseSqlServer(builder.Configuration.GetConnectionString("DbConnection2"));
 }, ServiceLifetime.Transient, ServiceLifetime.Transient);
 
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ProductCategoryService>();
 builder.Services.AddScoped<SaleService>();
-builder.Services.AddScoped<SaleDetailService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

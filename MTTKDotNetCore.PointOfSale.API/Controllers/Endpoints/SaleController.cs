@@ -11,33 +11,37 @@ namespace MTTKDotNetCore.PointOfSale.API.Controllers.Endpoints
     public class SaleController : BaseController
     {
         private readonly SaleService _saleService;
-        private readonly SaleDetailService _saleDetailService;
 
-        public SaleController(SaleService saleService, SaleDetailService saleDetailService)
+        public SaleController(SaleService saleService)
         {
             _saleService = saleService;
-            _saleDetailService = saleDetailService;
         }
 
         [HttpGet("get-sale-by-voucher")]
         public async Task<IActionResult> GetSale(string voucherNo)
         {
-            var SaleResult = await _saleService.GetSale(voucherNo);
-            var saleDetailResult = await _saleDetailService.GetSaleDetails(voucherNo);
-
-            return Execute(SaleResult);
+            var result = await _saleService.GetSaleAsync(voucherNo);
+            return Execute(result);
         }
 
-        [HttpPost("sale")]
-        public async Task<IActionResult> Sale(SaleRequest saleRequest)
+        //[HttpPost("sale")]
+        //public async Task<IActionResult> Sale(SaleRequest saleRequest)
+        //{
+        //    TblSalePos sale = saleRequest.Sale;
+        //    TblSaleInvoiceDetailPos saleDetail = saleRequest.SaleInvoiceDetail;
+
+        //    var item = await _saleService.CreateSale(sale);
+        //    var result = await _saleDetailService.CreateSaleInvoiceDetail(saleDetail);
+
+        //    return result.IsError ? Execute(result) : Execute(item);
+        //}
+
+        [HttpPost("create")] 
+        public async Task<IActionResult> CreateSaleAsync(CreateSaleRequest request) 
         {
-            TblSalePos sale = saleRequest.Sale;
-            TblSaleInvoiceDetailPos saleDetail = saleRequest.SaleInvoiceDetail;
-
-            var item = await _saleService.CreateSale(sale);
-            var result = await _saleDetailService.CreateSaleInvoiceDetail(saleDetail);
-
-            return result.IsError ? Execute(result) : Execute(item);
+            var result = await _saleService.CreateSaleAsync(request); 
+            return Execute(result); 
         }
     }
+
 }

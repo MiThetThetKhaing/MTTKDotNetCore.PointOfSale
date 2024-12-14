@@ -12,65 +12,111 @@ namespace MTTKDotNetCore.PointOfSale.Domain.Features
     public class SaleService
     {
         private readonly AppDbContext _db;
-        private readonly SaleDetailService _saleDetailService;
 
-        public SaleService(AppDbContext db, SaleDetailService saleDetailService)
+        public SaleService(AppDbContext db)
         {
             _db = db;
-            _saleDetailService = saleDetailService;
         }
 
-        public async Task<Result<SaleResponseModel>> CreateSale(TblSalePos sale)
+        public async Task<Result<SaleResponseModel>> CreateSaleAsync(CreateSaleRequest request)
         {
-            try
-            {
-                var Voucher = await _db.TblSalePos.AsNoTracking().FirstOrDefaultAsync(x => x.VoucherNo == sale.VoucherNo);
+            Result<SaleResponseModel> model = new Result<SaleResponseModel>();
+            var totalAmount = 0m;
 
-                if (string.IsNullOrEmpty(sale.VoucherNo))
+            string voucherNo = Guid.NewGuid().ToString();
+
+            var sale = new TblSalePos
+            {
+                VoucherNo = voucherNo,
+                SaleDate = DateTime.UtcNow, 
+            };
+
+            await _db.TblSalePos.AddAsync(sale);
+            await _db.SaveChangesAsync();
+
+            var saleItems = new List<SaleResponseModel.SaleItem>();
+            foreach (var item in request.SaleItems)
+            {
+                var product = await _db.TblProductPos
+                                      .AsNoTracking()
+                                      .FirstOrDefaultAsync(x => x.ProductCode == item.ProductCode && !x.DeleteFlag);
+
+                if (product is null)
                 {
-                    return Result<SaleResponseModel>.ValidationError("You need to put the Voucher No.");
+                    model = Result<SaleResponseModel>.ValidationError($"Product does not exist or is deleted.");
+                    goto Result;
                 }
 
-                await _db.TblSalePos.AddAsync(sale);
-                await _db.SaveChangesAsync();
-
-                var result = new SaleResponseModel
+                var saleDetail = new TblSaleInvoiceDetailPos
                 {
-                    TblSalePos = sale,
+                    VoucherNo = voucherNo,
+                    ProductCode = item.ProductCode,
+                    Quantity = item.Quantity,
+                    Price = product.Price  
                 };
+                await _db.TblSaleInvoiceDetailPos.AddAsync(saleDetail);
 
-                return Result<SaleResponseModel>.Success(result, "Successfully completed.");
+                totalAmount += product.Price * item.Quantity;
 
+                saleItems.Add(new SaleResponseModel.SaleItem
+                {
+                    ProductCode = product.ProductCode,
+                    ProductName = product.ProductName,
+                    Quantity = item.Quantity,
+                    Price = product.Price
+                });
             }
-            catch (Exception ex)
+            await _db.SaveChangesAsync();
+
+            sale.TotalAmount = totalAmount;
+            _db.TblSalePos.Update(sale);
+            await _db.SaveChangesAsync();
+
+            var response = new SaleResponseModel
             {
-                return Result<SaleResponseModel>.SystemError(ex.Message);
-            }
+                VoucherNo = sale.VoucherNo,
+                SaleDate = sale.SaleDate,
+                TotalAmount = sale.TotalAmount,
+                SaleItems = saleItems
+            };
+
+            model = Result<SaleResponseModel>.Success(response, "Sale created successfully.");
+
+        Result:
+            return model;
         }
 
-        public async Task<Result<SaleResponseModel>> GetSale(string voucherNo)
+        public async Task<Result<SaleResponseModel>> GetSaleAsync(string voucherNo)
         {
-            try
+            Result<SaleResponseModel> model = new Result<SaleResponseModel>();
+
+            var sale = await _db.TblSalePos.AsNoTracking().FirstOrDefaultAsync(s => s.VoucherNo == voucherNo);
+            if (sale is null)
             {
-                var VoucherNo = await _db.TblSalePos.AsNoTracking().FirstOrDefaultAsync(x => x.VoucherNo == voucherNo);
-                var saleDetail = await _saleDetailService.GetSaleDetails(voucherNo);
-
-                if (string.IsNullOrEmpty(VoucherNo.VoucherNo))
-                {
-                    return Result<SaleResponseModel>.ValidationError("Voucher does't exist.");
-                }
-
-                var result = new SaleResponseModel
-                {
-                    TblSalePos = VoucherNo,
-                };
-
-                return Result<SaleResponseModel>.Success(result, "Here is you sale voucher!");
+                model = Result<SaleResponseModel>.ValidationError("Sale not found.");
+                goto Result;
             }
-            catch (Exception ex)
+
+            var saleDetails = await _db.TblSaleInvoiceDetailPos.AsNoTracking().Where(d => d.VoucherNo == voucherNo).ToListAsync();
+
+            var response = new SaleResponseModel
             {
-                return Result<SaleResponseModel>.SystemError(ex.Message);
-            }
+                VoucherNo = sale.VoucherNo,
+                SaleDate = sale.SaleDate,
+                TotalAmount = sale.TotalAmount,
+                SaleItems = saleDetails.Select(detail => new SaleResponseModel.SaleItem
+                {
+                    ProductCode = detail.ProductCode,
+                    ProductName = _db.TblProductPos.AsNoTracking().FirstOrDefault(x => x.ProductCode == detail.ProductCode)?.ProductName,
+                    Quantity = detail.Quantity,
+                    Price = detail.Price
+                }).ToList()
+            };
+
+            model = Result<SaleResponseModel>.Success(response, "Success.");
+
+        Result:
+            return model;
         }
     }
 }
