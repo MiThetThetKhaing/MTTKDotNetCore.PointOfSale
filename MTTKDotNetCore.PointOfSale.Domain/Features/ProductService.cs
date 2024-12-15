@@ -66,11 +66,6 @@ public class ProductService : IProductService
             goto Result;
         }
 
-        //var Response = new TblProductPos
-        //{
-        //    TblProductPos = product
-        //};
-
         model = Result<TblProductPos>.Success(product, "Success.");
 
     Result:
