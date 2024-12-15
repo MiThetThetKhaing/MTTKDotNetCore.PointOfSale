@@ -24,24 +24,24 @@ namespace MTTKDotNetCore.PointOfSale.API.Controllers.Endpoints
             return Execute(result);
         }
 
-        [HttpGet("GetById")]
-        public async Task<IActionResult> GetProduct(int id)
+        [HttpGet("{code}")]
+        public async Task<IActionResult> GetProduct(string code)
         {
-            var result = await _productService.GetProduct(id);
+            var result = await _productService.GetProduct(code);
             return Execute(result);
         }
 
-        [HttpPatch("UpdateProduct/{id}")]
-        public async Task<IActionResult> UpdateProduct(int id, TblProductPos updatedProduct)
+        [HttpPatch("UpdateProduct/{code}")]
+        public async Task<IActionResult> UpdateProduct(string code, TblProductPos updatedProduct)
         {
-            var result = await _productService.UpdateProduct(id, updatedProduct);
+            var result = await _productService.UpdateProduct(code, updatedProduct);
             return Execute(result);
         }
 
         [HttpDelete("Delete")] 
-        public async Task<IActionResult> DeleteProduct(int id)
+        public async Task<IActionResult> DeleteProduct(string code)
         {
-            var result = await _productService.DeleteProduct(id);
+            var result = await _productService.DeleteProduct(code);
             return Execute(result);
         }
     }

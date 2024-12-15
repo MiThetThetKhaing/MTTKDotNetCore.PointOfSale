@@ -17,6 +17,10 @@ namespace MTTKDotNetCore.PointOfSale.API
             if (model.IsSystemError)
                 return StatusCode(500, model);
 
+            if (model.IsNotFound)
+                return NotFound(model);
+
+            Console.Write(model.Data.ToString());
             return Ok(model);
         }
     }

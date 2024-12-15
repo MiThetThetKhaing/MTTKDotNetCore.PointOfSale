@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AppDbContext>(opt =>
 {
     //opt.UseSqlServer(builder.Configuration.GetConnectionString("DbConnection"));
-    opt.UseSqlServer(builder.Configuration.GetConnectionString("DbConnection2"));
+    opt.UseSqlServer(builder.Configuration.GetConnectionString("DbConnection1"));
 }, ServiceLifetime.Transient, ServiceLifetime.Transient);
 
 builder.Services.AddScoped<IProductService, ProductService>();

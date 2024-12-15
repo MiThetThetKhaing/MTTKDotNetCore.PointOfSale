@@ -40,7 +40,7 @@ namespace MTTKDotNetCore.PointOfSale.Domain.Features
                 }
                 if (string.IsNullOrEmpty(productCategory.ProductCategoryCode))
                 {
-                    return Result<ProductCategoryResponseModel>.ValidationError("Product Category Code is alerady exist.");
+                    return Result<ProductCategoryResponseModel>.ValidationError("Product Category Code can't be empty or null.");
                 }
 
                 await _db.AddAsync(productCategory);
@@ -107,7 +107,7 @@ namespace MTTKDotNetCore.PointOfSale.Domain.Features
         {
             Result<ProductCategoryResponseModel> response = new Result<ProductCategoryResponseModel>();
 
-            if (String.IsNullOrEmpty(newName) || newName.Length < 6)
+            if (String.IsNullOrEmpty(newName) || newName.Length < 3)
             {
                 response = Result<ProductCategoryResponseModel>.ValidationError("New Name can't lower than 6 characters!");
                 goto Result;
