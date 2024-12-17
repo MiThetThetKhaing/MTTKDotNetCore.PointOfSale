@@ -40,7 +40,8 @@ public class ProductService : IProductService
         Result:
         return response;
     }
-    public async Task<Result<ProductResponseModel>> GetAllProductsByCategoryCode(String categoryCode)
+
+    public async Task<Result<ProductResponseModel>> GetAllProductsByCategoryCode(string categoryCode)
     {
         var response = new Result<ProductResponseModel>();
 
@@ -61,7 +62,7 @@ public class ProductService : IProductService
         Result:
         return response;
     }
-
+    
     public async Task<Result<ProductResponseModel>> CreateProduct(TblProductPos product)
     {
         try
@@ -115,7 +116,6 @@ public class ProductService : IProductService
     Result:
         return model;
     }
-
 
     public async Task<Result<ProductResponseModel>> UpdateProduct(string productCode, TblProductPos updatedProduct)
     {

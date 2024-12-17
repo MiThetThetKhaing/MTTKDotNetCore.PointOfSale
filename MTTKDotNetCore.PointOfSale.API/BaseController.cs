@@ -20,7 +20,6 @@ namespace MTTKDotNetCore.PointOfSale.API
             if (model.IsNotFound)
                 return NotFound(model);
 
-            Console.Write(model.Data.ToString());
             return Ok(model);
         }
     }

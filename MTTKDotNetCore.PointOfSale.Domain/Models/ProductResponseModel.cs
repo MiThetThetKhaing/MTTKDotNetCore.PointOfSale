@@ -9,8 +9,8 @@ namespace MTTKDotNetCore.PointOfSale.Domain.Models
 {
     public class ProductResponseModel
     {
-        public TblProductPos TblProductPos;
+        public TblProductPos? TblProductPos;
         
-        public List<TblProductPos> TblProductPosList;
+        public List<TblProductPos>? TblProductPosList;
     }
 }
