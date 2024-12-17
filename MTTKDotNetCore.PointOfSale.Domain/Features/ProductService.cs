@@ -99,19 +99,24 @@ public class ProductService : IProductService
         }
     }
 
-    public async Task<Result<TblProductPos>> GetProduct(string productCode)
+    public async Task<Result<ProductResponseModel>> GetProduct(string productCode)
     {
-        Result<TblProductPos> model = new Result<TblProductPos>();
+        Result<ProductResponseModel> model = new Result<ProductResponseModel>();
 
         var product = await _db.TblProductPos.FirstOrDefaultAsync(x => x.ProductCode == productCode && !x.DeleteFlag);
 
         if (product is null)
         {
-            model = Result<TblProductPos>.NotFound("Product not found or has been deleted.");
+            model = Result<ProductResponseModel>.NotFound("Product not found or has been deleted.");
             goto Result;
         }
 
-        model = Result<TblProductPos>.Success(product, "Success.");
+        var response = new ProductResponseModel
+        {
+            TblProductPos = product
+        };
+
+        model = Result<ProductResponseModel>.Success(response, "Success.");
 
     Result:
         return model;
