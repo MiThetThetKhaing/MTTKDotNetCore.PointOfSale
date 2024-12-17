@@ -14,8 +14,8 @@ public class Result<T>
     public bool IsSystemError   { get { return Type == EnumRespType.SystemError; } }
     public bool IsNotFound { get { return Type == EnumRespType.NotFound;  } }
     private EnumRespType Type { get; set; }
-    public T Data { get; set; }
-    public string Message { get; set; }
+    public T? Data { get; set; }
+    public string Message { get; set; } = null!;
 
     public static Result<T> Success(T? data, string message)
     {

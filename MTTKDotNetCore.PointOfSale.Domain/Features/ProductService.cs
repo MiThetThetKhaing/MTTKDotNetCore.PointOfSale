@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using MTTKDotNetCore.PointOfSale.Database.Models;
 using MTTKDotNetCore.PointOfSale.Domain.Models;
 using System;
@@ -16,6 +17,49 @@ public class ProductService : IProductService
     public ProductService(AppDbContext db)
     {
         _db = db;
+    }
+
+    public async Task<Result<ProductResponseModel>> GetAllProducts()
+    {
+        var response = new Result<ProductResponseModel>();
+
+        var list = await _db.TblProductPos.AsNoTracking().Where(p => p.DeleteFlag == false).ToListAsync();
+
+        if (list.IsNullOrEmpty())
+        {
+            response = Result<ProductResponseModel>.NotFound("No Product Avaliable. Try creating One!");
+            goto Result;
+        }
+
+        var model = new ProductResponseModel
+        {
+            TblProductPosList = list
+        };
+        response = Result<ProductResponseModel>.Success(model, "List of Products");
+
+        Result:
+        return response;
+    }
+    public async Task<Result<ProductResponseModel>> GetAllProductsByCategoryCode(String categoryCode)
+    {
+        var response = new Result<ProductResponseModel>();
+
+        var list = await _db.TblProductPos.AsNoTracking().Where(x => x.ProductCategoryCode == categoryCode && x.DeleteFlag == false).ToListAsync();
+
+        if (list.IsNullOrEmpty())
+        {
+            response = Result<ProductResponseModel>.NotFound("Category is Empty");
+            goto Result;
+        }
+
+        var model = new ProductResponseModel
+        {
+            TblProductPosList = list
+        };
+        response = Result<ProductResponseModel>.Success(model, "List of Products By Category Code");
+
+        Result:
+        return response;
     }
 
     public async Task<Result<ProductResponseModel>> CreateProduct(TblProductPos product)
