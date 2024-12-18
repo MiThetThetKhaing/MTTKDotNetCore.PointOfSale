@@ -11,16 +11,23 @@ namespace MTTKDotNetCore.PointOfSale.API
         [NonAction]
         public IActionResult Execute<T>(Result<T> model)
         {
-            if (model.IsValidationError)
-                return BadRequest(model);
+            if (model.IsSuccess)
+            {
+                return Ok(model);
+            }
+            else
+            {
+                if (model.IsValidationError)
+                    return BadRequest(model);
 
-            if (model.IsSystemError)
-                return StatusCode(500, model);
+                if (model.IsSystemError)
+                    return StatusCode(500, model);
 
-            if (model.IsNotFound)
-                return NotFound(model);
+                if (model.IsNotFound)
+                    return NotFound(model);
+            }
 
-            return Ok(model);
+            return StatusCode(500, "Developer Fault!");
         }
     }
 }
