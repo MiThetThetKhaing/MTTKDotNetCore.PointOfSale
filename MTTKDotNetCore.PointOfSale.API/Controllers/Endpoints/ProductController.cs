@@ -54,6 +54,13 @@ namespace MTTKDotNetCore.PointOfSale.API.Controllers.Endpoints
             return Execute(result);
         }
 
+        [HttpGet("search/{name}")]
+        public async Task<IActionResult> SearchProduct(string name)
+        {
+            var result = await _productService.GetProductsByName(name);
+            return Execute(result);
+        }
+
         [HttpPatch("UpdateProduct/{code}")]
         public async Task<IActionResult> UpdateProduct(string code, TblProductPos updatedProduct)
         {

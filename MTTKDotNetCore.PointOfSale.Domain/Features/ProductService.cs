@@ -122,6 +122,28 @@ public class ProductService : IProductService
         return model;
     }
 
+    public async Task<Result<ProductResponseModel>> GetProductsByName(string name)
+    {
+        var response = new Result<ProductResponseModel>();
+
+        var result = await _db.TblProductPos.AsNoTracking().Where(p => EF.Functions.Like(p.ProductName, $"%{name}%") && p.DeleteFlag == false).ToListAsync();
+
+        if (result.Count() == 0)
+        {
+            response = Result<ProductResponseModel>.NotFound($"There is no product that contains {name}");
+            goto Result;
+        }
+
+        var model = new ProductResponseModel
+        {
+            TblProductPosList = result
+        };
+        response = Result<ProductResponseModel>.Success(model, "Here are the results of the searching!");
+
+        Result:
+        return response;
+    }
+
     public async Task<Result<ProductResponseModel>> UpdateProduct(string productCode, TblProductPos updatedProduct)
     {
         Result<ProductResponseModel> model = new Result<ProductResponseModel>();

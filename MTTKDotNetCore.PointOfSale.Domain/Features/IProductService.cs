@@ -9,6 +9,7 @@ namespace MTTKDotNetCore.PointOfSale.Domain.Features
         Task<Result<ProductResponseModel>> GetAllProductsByCategoryCode(String categoryCode);
         Task<Result<ProductResponseModel>> CreateProduct(TblProductPos product);
         Task<Result<ProductResponseModel>> GetProduct(string productCode);
+        Task<Result<ProductResponseModel>> GetProductsByName(string name);
         Task<Result<ProductResponseModel>> UpdateProduct(string productCode, TblProductPos updatedProduct); 
         Task<Result<ProductResponseModel>> DeleteProduct(string productCode);
     }
