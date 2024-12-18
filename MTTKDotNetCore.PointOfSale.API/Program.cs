@@ -12,8 +12,8 @@ builder.Services.AddDbContext<AppDbContext>(opt =>
 }, ServiceLifetime.Transient, ServiceLifetime.Transient);
 
 builder.Services.AddScoped<IProductService, ProductService>();
-builder.Services.AddScoped<ProductCategoryService>();
-builder.Services.AddScoped<SaleService>();
+builder.Services.AddScoped<IProductCategoryService, ProductCategoryService>();
+builder.Services.AddScoped<ISaleService, SaleService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

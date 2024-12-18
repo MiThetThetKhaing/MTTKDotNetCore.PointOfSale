@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace MTTKDotNetCore.PointOfSale.Domain.Features
 {
-    public class ProductCategoryService
+    public class ProductCategoryService : IProductCategoryService
     {
         private readonly AppDbContext _db;
 
@@ -30,7 +30,7 @@ namespace MTTKDotNetCore.PointOfSale.Domain.Features
                     .Where(x => x.DeleteFlag == false)
                     .FirstOrDefaultAsync(x => x.ProductCategoryName == productCategory.ProductCategoryName);
 
-                if (productCategoryCode != null )
+                if (productCategoryCode != null)
                 {
                     return Result<ProductCategoryResponseModel>.ValidationError("Product Category Code is alerady exist.");
                 }
@@ -65,10 +65,11 @@ namespace MTTKDotNetCore.PointOfSale.Domain.Features
 
             var lst = await _db.TblProductCategoryPos.AsNoTracking().Where(c => c.DeleteFlag == false).ToListAsync();
 
-            ProductCategoryResponseModel model = new ProductCategoryResponseModel { 
+            ProductCategoryResponseModel model = new ProductCategoryResponseModel
+            {
                 TblProductCategoryPosList = lst
             };
-            if(lst.Count > 0)
+            if (lst.Count > 0)
             {
                 response = Result<ProductCategoryResponseModel>.Success(model, "There is no Category. Try creating one, frist!");
                 goto Result;
@@ -84,9 +85,9 @@ namespace MTTKDotNetCore.PointOfSale.Domain.Features
         {
             Result<ProductCategoryResponseModel> response = new Result<ProductCategoryResponseModel>();
 
-            var category = await _db.TblProductCategoryPos.AsNoTracking().Where(c => c.DeleteFlag == false && c.ProductCategoryCode == categoryCode ).FirstOrDefaultAsync();
+            var category = await _db.TblProductCategoryPos.AsNoTracking().Where(c => c.DeleteFlag == false && c.ProductCategoryCode == categoryCode).FirstOrDefaultAsync();
 
-            
+
             if (category is null)
             {
                 response = Result<ProductCategoryResponseModel>.NotFound($"Can't find the Category with code {categoryCode}.");
@@ -127,7 +128,7 @@ namespace MTTKDotNetCore.PointOfSale.Domain.Features
             _db.Entry(category).State = EntityState.Modified;
             int result = await _db.SaveChangesAsync();
 
-            if(result < 1)
+            if (result < 1)
             {
                 response = Result<ProductCategoryResponseModel>.SystemError("Category Update Failed!");
                 goto Result;
@@ -171,7 +172,7 @@ namespace MTTKDotNetCore.PointOfSale.Domain.Features
             {
                 TblProductCategoryPos = category
             };
-            response = Result<ProductCategoryResponseModel>.Success( null,"Category Deleted!");
+            response = Result<ProductCategoryResponseModel>.Success(null, "Category Deleted!");
 
         Result:
             return response;

@@ -10,9 +10,9 @@ namespace MTTKDotNetCore.PointOfSale.API.Controllers.Endpoints
     [ApiController]
     public class SaleController : BaseController
     {
-        private readonly SaleService _saleService;
+        private readonly ISaleService _saleService;
 
-        public SaleController(SaleService saleService)
+        public SaleController(ISaleService saleService)
         {
             _saleService = saleService;
         }
@@ -41,6 +41,13 @@ namespace MTTKDotNetCore.PointOfSale.API.Controllers.Endpoints
         {
             var result = await _saleService.CreateSaleAsync(request); 
             return Execute(result); 
+        }
+
+        [HttpGet("{date}")]
+        public async Task<IActionResult> GetSalesByDate(DateTime date)
+        {
+            var result = await _saleService.GetSaleByDate(date);
+            return Execute(result);
         }
     }
 

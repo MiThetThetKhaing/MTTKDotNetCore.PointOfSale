@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace MTTKDotNetCore.PointOfSale.Domain.Features
 {
-    public class SaleService
+    public class SaleService : ISaleService
     {
         private readonly AppDbContext _db;
 
@@ -28,7 +28,7 @@ namespace MTTKDotNetCore.PointOfSale.Domain.Features
             var sale = new TblSalePos
             {
                 VoucherNo = voucherNo,
-                SaleDate = DateTime.UtcNow, 
+                SaleDate = DateTime.UtcNow,
             };
 
             await _db.TblSalePos.AddAsync(sale);
@@ -52,7 +52,7 @@ namespace MTTKDotNetCore.PointOfSale.Domain.Features
                     VoucherNo = voucherNo,
                     ProductCode = item.ProductCode,
                     Quantity = item.Quantity,
-                    Price = product.Price  
+                    Price = product.Price
                 };
                 await _db.TblSaleInvoiceDetailPos.AddAsync(saleDetail);
 
@@ -114,6 +114,45 @@ namespace MTTKDotNetCore.PointOfSale.Domain.Features
             };
 
             model = Result<SaleResponseModel>.Success(response, "Success.");
+
+        Result:
+            return model;
+        }
+
+        public async Task<Result<List<SaleResponseModel>>> GetSaleByDate(DateTime date)
+        {
+            Result<List<SaleResponseModel>> model = new Result<List<SaleResponseModel>>();
+
+            var sales = await _db.TblSalePos.AsNoTracking().Where(x => x.SaleDate > date && x.SaleDate < date.AddDays(1).AddTicks(-1)).ToListAsync();
+            if (sales.Count() == 0)
+            {
+                model = Result<List<SaleResponseModel>>.NotFound($"Sale not found on {date.ToString()}.");
+                goto Result;
+            }
+
+            var response = new List<SaleResponseModel>();
+            foreach (var sale in sales)
+            {
+                var saleDetails = await _db.TblSaleInvoiceDetailPos.AsNoTracking().Where(x => x.VoucherNo == sale.VoucherNo).ToListAsync();
+
+                var saleResponse = new SaleResponseModel
+                {
+                    VoucherNo = sale.VoucherNo,
+                    SaleDate = sale.SaleDate,
+                    TotalAmount = sale.TotalAmount,
+                    SaleItems = saleDetails.Select(detail => new SaleResponseModel.SaleItem
+                    {
+                        ProductCode = detail.ProductCode,
+                        ProductName = _db.TblProductPos.AsNoTracking().FirstOrDefault(x => x.ProductCode == detail.ProductCode)!.ProductName,
+                        Quantity = detail.Quantity,
+                        Price = detail.Price
+                    }).ToList()
+                };
+                response.Add(saleResponse);
+            }
+
+
+            model = Result<List<SaleResponseModel>>.Success(response, "Success.");
 
         Result:
             return model;

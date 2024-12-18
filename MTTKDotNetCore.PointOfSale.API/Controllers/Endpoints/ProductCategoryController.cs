@@ -9,9 +9,9 @@ namespace MTTKDotNetCore.PointOfSale.API.Controllers.Endpoints
     [ApiController]
     public class ProductCategoryController : BaseController
     {
-        private readonly ProductCategoryService _productCategoryService;
+        private readonly IProductCategoryService _productCategoryService;
 
-        public ProductCategoryController(ProductCategoryService productCategoryService)
+        public ProductCategoryController(IProductCategoryService productCategoryService)
         {
             _productCategoryService = productCategoryService;
         }
