@@ -17,44 +17,60 @@ namespace MTTKDotNetCore.PointOfSale.API.Controllers.Endpoints
             _saleService = saleService;
         }
 
-        [HttpGet("get-sale-by-voucher")]
+        [HttpGet("{voucherNo}")]
         public async Task<IActionResult> GetSale(string voucherNo)
         {
-            var result = await _saleService.GetSaleAsync(voucherNo);
-            return Execute(result);
+            try
+            {
+                var result = await _saleService.GetSaleAsync(voucherNo);
+                return Execute(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
-        //[HttpPost("sale")]
-        //public async Task<IActionResult> Sale(SaleRequest saleRequest)
-        //{
-        //    TblSalePos sale = saleRequest.Sale;
-        //    TblSaleInvoiceDetailPos saleDetail = saleRequest.SaleInvoiceDetail;
-
-        //    var item = await _saleService.CreateSale(sale);
-        //    var result = await _saleDetailService.CreateSaleInvoiceDetail(saleDetail);
-
-        //    return result.IsError ? Execute(result) : Execute(item);
-        //}
-
-        [HttpPost("create")] 
-        public async Task<IActionResult> CreateSaleAsync(CreateSaleRequest request) 
+        [HttpPost("/create")]
+        public async Task<IActionResult> CreateSaleAsync(CreateSaleRequest request)
         {
-            var result = await _saleService.CreateSaleAsync(request); 
-            return Execute(result); 
+            try
+            {
+                var result = await _saleService.CreateSaleAsync(request);
+                return Execute(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
         [HttpGet("{date}")]
         public async Task<IActionResult> GetSalesByDate(DateTime date)
         {
-            var result = await _saleService.GetSaleByDate(date);
-            return Execute(result);
+            try
+            {
+                var result = await _saleService.GetSaleByDate(date);
+                return Execute(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
         [HttpGet("/month/{month}/{year}")]
         public async Task<IActionResult> GetSalesByMonth(int month, int year)
         {
-            var result = await _saleService.GetSaleByMonth(month, year);
-            return Execute(result);
+            try
+            {
+                var result = await _saleService.GetSaleByMonth(month, year);
+                return Execute(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
     }
 
