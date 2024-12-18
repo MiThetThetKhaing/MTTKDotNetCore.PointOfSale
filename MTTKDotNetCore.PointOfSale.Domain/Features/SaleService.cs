@@ -157,5 +157,47 @@ namespace MTTKDotNetCore.PointOfSale.Domain.Features
         Result:
             return model;
         }
+
+        public async Task<Result<List<SaleResponseModel>>> GetSaleByMonth(int month, int year)
+        {
+            Result<List<SaleResponseModel>> model = new Result<List<SaleResponseModel>>();
+            DateTime starDate = new DateTime(year, month, 1);
+            int lastDay = DateTime.DaysInMonth(year, month);
+            DateTime endDate = starDate.AddDays(lastDay);
+
+            var sales = await _db.TblSalePos.AsNoTracking().Where(x => x.SaleDate > starDate && x.SaleDate < endDate).ToListAsync();
+            if (sales.Count() == 0)
+            {
+                model = Result<List<SaleResponseModel>>.NotFound($"Sales not found on {month} (th) month of {year}.");
+                goto Result;
+            }
+
+            var response = new List<SaleResponseModel>();
+            foreach (var sale in sales)
+            {
+                var saleDetails = await _db.TblSaleInvoiceDetailPos.AsNoTracking().Where(x => x.VoucherNo == sale.VoucherNo).ToListAsync();
+
+                var saleResponse = new SaleResponseModel
+                {
+                    VoucherNo = sale.VoucherNo,
+                    SaleDate = sale.SaleDate,
+                    TotalAmount = sale.TotalAmount,
+                    SaleItems = saleDetails.Select(detail => new SaleResponseModel.SaleItem
+                    {
+                        ProductCode = detail.ProductCode,
+                        ProductName = _db.TblProductPos.AsNoTracking().FirstOrDefault(x => x.ProductCode == detail.ProductCode)!.ProductName,
+                        Quantity = detail.Quantity,
+                        Price = detail.Price
+                    }).ToList()
+                };
+                response.Add(saleResponse);
+            }
+
+
+            model = Result<List<SaleResponseModel>>.Success(response, "Success.");
+
+        Result:
+            return model;
+        }
     }
 }

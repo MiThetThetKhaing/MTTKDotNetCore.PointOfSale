@@ -49,6 +49,13 @@ namespace MTTKDotNetCore.PointOfSale.API.Controllers.Endpoints
             var result = await _saleService.GetSaleByDate(date);
             return Execute(result);
         }
+
+        [HttpGet("/month/{month}/{year}")]
+        public async Task<IActionResult> GetSalesByMonth(int month, int year)
+        {
+            var result = await _saleService.GetSaleByMonth(month, year);
+            return Execute(result);
+        }
     }
 
 }

@@ -7,5 +7,6 @@ namespace MTTKDotNetCore.PointOfSale.Domain.Features
         Task<Result<SaleResponseModel>> CreateSaleAsync(CreateSaleRequest request);
         Task<Result<SaleResponseModel>> GetSaleAsync(string voucherNo);
         Task<Result<List<SaleResponseModel>>> GetSaleByDate(DateTime date);
+        Task<Result<List<SaleResponseModel>>> GetSaleByMonth(int month, int year);
     }
 }
